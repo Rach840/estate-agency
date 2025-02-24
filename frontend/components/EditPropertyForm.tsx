@@ -1,0 +1,208 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { editProperty, getOwners } from "@/api";
+import { Owner, Property } from "@/models";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { PlusIcon } from "lucide-react";
+import AddOwner from "@/components/AddOwnerForm";
+
+export default function EditProperty({ data }: { data: Property }) {
+    const [owners, setOwners] = useState<Owner[]>([]);
+    useEffect(() => {
+        (async () => {
+            setOwners(await getOwners());
+        })();
+    }, []);
+    const [formData, setFormData] = useState({
+        address: data.address,
+        type: data.type,
+        price: data.price,
+        area: data.area,
+        status: data.status,
+        bedrooms: data.bedrooms,
+        bathrooms: data.bathrooms,
+        is_finished: data.is_finished,
+        owner_id: data.owner_id,
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
+    };
+
+    const handleSelectChange = (name: string, value: string | boolean) => {
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        (async () => {
+            await editProperty(data.id, formData);
+            window.location.reload();
+        })();
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+            <div>
+                <Label htmlFor="address">Адрес</Label>
+                <Input
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+            <div>
+                <Label htmlFor="type">Тип недвижимости</Label>
+                <Select
+                    name="type"
+                    value={formData.type}
+                    onValueChange={(value) => handleSelectChange("type", value)}
+                    required
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Выберите тип недвижимости" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="house">Дом</SelectItem>
+                        <SelectItem value="apartment">Квартира</SelectItem>
+                        <SelectItem value="condo">Апартаменты</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div>
+                <Label htmlFor="price">Цена, ₽</Label>
+                <Input
+                    id="price"
+                    name="price"
+                    type="number"
+                    value={formData.price}
+                    onChange={handleChange}
+                    required
+                    min="1"
+                />
+            </div>
+            <div>
+                <Label htmlFor="area">Площадь, м²</Label>
+                <Input
+                    id="area"
+                    name="area"
+                    type="number"
+                    value={formData.area}
+                    onChange={handleChange}
+                    required
+                    min="1"
+                />
+            </div>
+            <div>
+                <Label htmlFor="status">Статус</Label>
+                <Select
+                    name="status"
+                    value={formData.status}
+                    onValueChange={(value) =>
+                        handleSelectChange("status", value)
+                    }
+                    required
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Выберите статус" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="for-sale">Продается</SelectItem>
+                        <SelectItem value="for-rent">Сдается</SelectItem>
+                        <SelectItem value="sold">Продано</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div>
+                <Label htmlFor="bedrooms">Количество спальных комнат</Label>
+                <Input
+                    id="bedrooms"
+                    name="bedrooms"
+                    type="number"
+                    value={formData.bedrooms}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+            <div>
+                <Label htmlFor="bathrooms">Количество санузлов</Label>
+                <Input
+                    id="bathrooms"
+                    name="bathrooms"
+                    type="number"
+                    value={formData.bathrooms}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+            <div className="flex items-center space-x-2">
+                <Checkbox
+                    id="is_finished"
+                    name="is_finished"
+                    checked={formData.is_finished}
+                    onCheckedChange={(value) =>
+                        handleSelectChange("is_finished", value)
+                    }
+                />
+                <Label htmlFor="is_finished">Сданы ключи</Label>
+            </div>
+            <div>
+                <Label htmlFor="owner_id">Владелец</Label>
+                <div className="flex space-x-2">
+                    <Select
+                        name="owner_id"
+                        value={String(formData.owner_id)}
+                        onValueChange={(value) =>
+                            handleSelectChange("owner_id", value)
+                        }
+                        required
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Выберите владельца" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {owners.map((owner) => (
+                                <SelectItem
+                                    value={String(owner.id)}
+                                    key={owner.id}
+                                >
+                                    {owner.name} ({owner.email})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="icon">
+                                <PlusIcon />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                            <AddOwner />
+                        </PopoverContent>
+                    </Popover>
+                </div>
+            </div>
+            <Button type="submit">Изменить</Button>
+        </form>
+    );
+}

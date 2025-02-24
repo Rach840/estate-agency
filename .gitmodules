@@ -1,0 +1,10 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/nnnllll/estate-agency-be
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/nnnllll/estate-agency-fe
+[submodule "./frontend/"]
+	url = https://github.com/nnnllll/estate-agency-fe
+[submodule "./backend/"]
+	url = https://github.com/nnnllll/estate-agency-be

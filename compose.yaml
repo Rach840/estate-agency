@@ -1,0 +1,33 @@
+name: ""
+
+services:
+  frontend:
+    build: "./frontend"
+    depends_on:
+      - backend
+    restart: always
+  backend:
+    build: "./backend"
+    depends_on:
+      - database
+    restart: always
+  database:
+    image: "postgres:alpine"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+      PGDATA: /var/lib/postgresql/data/pg-data
+    volumes:
+      - "./db/:/var/lib/postgresql/data/pg-data/:rw"
+    restart: always
+  nginx:
+    build: "./nginx"
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    restart: always
