@@ -9,20 +9,15 @@ import handleDownload from './pdfButton';
 import { Button } from './ui/button';
 
 export default function CreatePropertyDocument({ ownerData, propertyData}) {
-  const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [owner, setOwner] = useState(null);
   const [photo, setPhoto] = useState(null);
 
   useEffect(() => {
     (async () => {
 
-        const owner = await ownerData;
-        const property = await propertyData;
-        const photoData = await getPropertyPhotos(property.id);
+
+        const photoData = await getPropertyPhotos(propertyData.id);
         setPhoto(photoData);
-        setOwner(owner);
-        setProperty(property);
         setLoading(false);
    
     })();

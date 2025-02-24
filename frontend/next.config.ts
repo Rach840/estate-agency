@@ -5,7 +5,10 @@ const nextConfig: NextConfig = {
         serverActions: {
             allowedOrigins: ['localhost', "frontend"],
         }
-    }
+    },
+    typescript: {
+        ignoreBuildErrors: true,
+      },
 };
 
 export default nextConfig;

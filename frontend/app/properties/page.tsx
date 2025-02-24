@@ -1,4 +1,4 @@
-
+'use client'
 import {
     Table,
     TableBody,
@@ -22,17 +22,20 @@ import {
 } from "@/components/ui/dialog";
 import EditProperty from "@/components/EditPropertyForm";
 import { formatPrice, formatStatus, formatType } from "@/lib/format";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { Page, Text, View, Document, StyleSheet, PDFDownloadLink, Font } from '@react-pdf/renderer';
-import Html, { fetchStylesheets } from 'react-pdf-html';
+import ExportButton from "@/components/export-button";
 import { useEffect, useState } from "react";
 import { Property } from "@/models";
-import { link } from "fs";
-import ExportButton from "@/components/export-button";
-export default async function Properties() {
-    const propertiesList = await getProperties();
-const propertiesListRussia = propertiesList.map(item => {
+export default function Properties() {
+    const [properties, setProperties] = useState<Property[]>()
+    useEffect(() => {
+      (async () => {
+        const propertiesList = await getProperties();
+        setProperties(propertiesList)
+      })()
+    }, [])
+    
+ 
+const propertiesListRussia = properties?.map(item => {
     return {
         Адресс: item.address,
         Тип: item.type == 'house'? 'Дом' : item.type == 'apartment' ? 'Квартира' : 'Апартаменты',
@@ -68,7 +71,7 @@ const propertiesListRussia = propertiesList.map(item => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {propertiesList?.map((property) => (
+                    {properties?.map((property) => (
                         <TableRow key={property.id}>
                             <TableCell>{property.address}</TableCell>
                             <TableCell>{formatType(property.type)}</TableCell>
